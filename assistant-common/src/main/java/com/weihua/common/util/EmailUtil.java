@@ -12,6 +12,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 import javax.mail.Authenticator;
 import javax.mail.BodyPart;
@@ -415,8 +417,7 @@ public class EmailUtil {
 					String sendTime = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
 							.format(((MimeMessage) messages[i]).getSentDate());
 					entity.setSendTime(sendTime);
-					messageLog.append("send time:").append(sendTime)
-							.append(Constant.EMAIL_UTIL_DEFAULT_LOG_SPERATOR);
+					messageLog.append("send time:").append(sendTime).append(Constant.EMAIL_UTIL_DEFAULT_LOG_SPERATOR);
 					boolean hasAttachment = isContainAttach((Part) messages[i]) ? true : false;
 					entity.setHasAttachment(hasAttachment);
 					messageLog.append("hasAttachment:").append(hasAttachment)
@@ -570,8 +571,8 @@ public class EmailUtil {
 		}
 	}
 
-	private static Object sendLock = new Object();
-	private static Object recieveLock = new Object();
+	private static Lock sendLock = new ReentrantLock();
+	private static Lock recieveLock = new ReentrantLock();;
 	private static Date lastSendTime = null;
 	private static Date lastRecieveTime = null;
 
@@ -579,30 +580,36 @@ public class EmailUtil {
 		public static void protect(ProtectType protectType) {
 			try {
 				if (protectType == ProtectType.SEND) {
-					synchronized (sendLock) {
-						if (lastSendTime != null) {
-							Date now = new Date();
-							long diffTime = DateUtil.getDateDiff(now, lastSendTime);
-							if (diffTime >= 0 && diffTime < protectType.getValue()) {
-								Thread.sleep(protectType.getValue() - diffTime);
-							}
-						}
+					long diffTime = protectType.getValue();
+					if (lastSendTime != null) {
+						Date now = new Date();
+						diffTime = DateUtil.getDateDiff(now, lastSendTime);
+					}
+					if (sendLock.tryLock() && diffTime >= protectType.getValue()) {
 						lastSendTime = new Date();
+					} else {
+						throw new RuntimeException("Over frequency protect");
 					}
 				} else if (protectType == ProtectType.RECIEVE) {
-					synchronized (recieveLock) {
-						if (lastRecieveTime != null) {
-							Date now = new Date();
-							long diffTime = DateUtil.getDateDiff(now, lastRecieveTime);
-							if (diffTime >= 0 && diffTime < protectType.getValue()) {
-								Thread.sleep(protectType.getValue() - diffTime);
-							}
-						}
+					long diffTime = protectType.getValue();
+					if (lastRecieveTime != null) {
+						Date now = new Date();
+						diffTime = DateUtil.getDateDiff(now, lastRecieveTime);
+					}
+					if (recieveLock.tryLock() && diffTime >= protectType.getValue()) {
 						lastRecieveTime = new Date();
+					} else {
+						throw new RuntimeException("Over frequency protect");
 					}
 				}
 			} catch (Exception e) {
 				Throwables.propagate(e);
+			} finally {
+				if (protectType == ProtectType.SEND) {
+					sendLock.unlock();
+				} else if (protectType == ProtectType.RECIEVE) {
+					recieveLock.unlock();
+				}
 			}
 		}
 
