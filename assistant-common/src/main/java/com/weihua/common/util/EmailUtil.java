@@ -59,10 +59,10 @@ public class EmailUtil {
 		props.put("mail.smtp.auth", "true");
 	}
 
-	public static void initDefaultConfig(String dataEmailUser, String dataEmailUserPwd, String receiveEmailUser) {
+	public static void initDefaultConfig(String dataEmailUser, String dataEmailUserPwd) {
 		configs.put(Constant.EMAIL_UTIL_DEFAULT_SEND_USER, dataEmailUser);
 		configs.put(Constant.EMAIL_UTIL_DEFAULT_SEND_PWD, dataEmailUserPwd);
-		configs.put(Constant.EMAIL_UTIL_DEFAULT_RECEIVE_USER, receiveEmailUser);
+		configs.put(Constant.EMAIL_UTIL_DEFAULT_RECEIVE_USER, dataEmailUser);
 	}
 
 	public static void send(final SendInfo sendInfo) {
@@ -406,21 +406,21 @@ public class EmailUtil {
 							.append(Constant.EMAIL_UTIL_DEFAULT_LOG_SPERATOR);
 					String sender = getFrom(messages[i]);
 					entity.setSender(sender);
-					messageLog.append("sender:").append(sender).append(Constant.EMAIL_UTIL_DEFAULT_MAIL_ATTACH_PATH);
+					messageLog.append("sender:").append(sender).append(Constant.EMAIL_UTIL_DEFAULT_LOG_SPERATOR);
 					String subject = getSubject(messages[i]);
 					entity.setSubject(subject);
-					messageLog.append("subject:").append(subject).append(Constant.EMAIL_UTIL_DEFAULT_MAIL_ATTACH_PATH);
+					messageLog.append("subject:").append(subject).append(Constant.EMAIL_UTIL_DEFAULT_LOG_SPERATOR);
 					entity.setContent(bodytext.toString());
 					// messageLog.append("content:").append(entity.getContent()).append(Config.LOG_SPERATOR);
 					String sendTime = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
 							.format(((MimeMessage) messages[i]).getSentDate());
 					entity.setSendTime(sendTime);
 					messageLog.append("send time:").append(sendTime)
-							.append(Constant.EMAIL_UTIL_DEFAULT_MAIL_ATTACH_PATH);
+							.append(Constant.EMAIL_UTIL_DEFAULT_LOG_SPERATOR);
 					boolean hasAttachment = isContainAttach((Part) messages[i]) ? true : false;
 					entity.setHasAttachment(hasAttachment);
 					messageLog.append("hasAttachment:").append(hasAttachment)
-							.append(Constant.EMAIL_UTIL_DEFAULT_MAIL_ATTACH_PATH);
+							.append(Constant.EMAIL_UTIL_DEFAULT_LOG_SPERATOR);
 					messageLog.append("-----------------Email content end-----------------");
 
 					LOGGER.info(messageLog);
@@ -572,27 +572,31 @@ public class EmailUtil {
 
 	private static Object sendLock = new Object();
 	private static Object recieveLock = new Object();
-	private static Date lastSendTime = new Date();
-	private static Date lastRecieveTime = new Date();
+	private static Date lastSendTime = null;
+	private static Date lastRecieveTime = null;
 
 	private static class OverFrequencyProtector {
 		public static void protect(ProtectType protectType) {
 			try {
 				if (protectType == ProtectType.SEND) {
 					synchronized (sendLock) {
-						Date now = new Date();
-						long diffTime = DateUtil.getDateDiff(now, lastSendTime);
-						if (diffTime >= 0 && diffTime < protectType.getValue()) {
-							Thread.sleep(protectType.getValue() - diffTime);
+						if (lastSendTime != null) {
+							Date now = new Date();
+							long diffTime = DateUtil.getDateDiff(now, lastSendTime);
+							if (diffTime >= 0 && diffTime < protectType.getValue()) {
+								Thread.sleep(protectType.getValue() - diffTime);
+							}
 						}
 						lastSendTime = new Date();
 					}
 				} else if (protectType == ProtectType.RECIEVE) {
 					synchronized (recieveLock) {
-						Date now = new Date();
-						long diffTime = DateUtil.getDateDiff(now, lastRecieveTime);
-						if (diffTime >= 0 && diffTime < protectType.getValue()) {
-							Thread.sleep(protectType.getValue() - diffTime);
+						if (lastRecieveTime != null) {
+							Date now = new Date();
+							long diffTime = DateUtil.getDateDiff(now, lastRecieveTime);
+							if (diffTime >= 0 && diffTime < protectType.getValue()) {
+								Thread.sleep(protectType.getValue() - diffTime);
+							}
 						}
 						lastRecieveTime = new Date();
 					}
@@ -617,7 +621,7 @@ public class EmailUtil {
 	}
 
 	public static void main(String[] args) throws InterruptedException {
-		initDefaultConfig("data_18301166408@163.com", "chengwei123", "295999757@qq.com");
+		initDefaultConfig("3333", "4444");
 
 		/*
 		 * SendInfo sendInfo = new SendInfo(); sendInfo.setHeadName("test");
