@@ -61,7 +61,7 @@ public class EmailUtil {
 		props.put("mail.smtp.auth", "true");
 	}
 
-	public static void initDefaultConfig(String dataEmailUser, String dataEmailUserPwd) {
+	public static void init(String dataEmailUser, String dataEmailUserPwd) {
 		configs.put(Constant.EMAIL_UTIL_DEFAULT_SEND_USER, dataEmailUser);
 		configs.put(Constant.EMAIL_UTIL_DEFAULT_SEND_PWD, dataEmailUserPwd);
 		configs.put(Constant.EMAIL_UTIL_DEFAULT_RECEIVE_USER, dataEmailUser);
@@ -628,7 +628,7 @@ public class EmailUtil {
 	}
 
 	public static void main(String[] args) throws InterruptedException {
-		initDefaultConfig("3333", "4444");
+		init("3333", "4444");
 
 		/*
 		 * SendInfo sendInfo = new SendInfo(); sendInfo.setHeadName("test");

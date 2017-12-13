@@ -23,7 +23,7 @@ public class DateUtil {
 	};
 
 	public static void main(String[] args) throws Exception {
-		System.out.println(getDateFormat(new Date(), DateFormatType.YYYY_MM_DD_HH_MM_SS));
+		System.out.println(getDateFormat("12:11", DateFormatType.HH_MM));
 	}
 
 	public static String getDateFormat(Date date, DateFormatType dateFormatType) {
@@ -38,20 +38,10 @@ public class DateUtil {
 		return dateFormator.format(date);
 	}
 
-	public static Date getDateFormat(String date) {
-		DateFormat dateFormat = dateFormatMap.get().get(DateFormatType.YYYY_MM_DD);
+	public static Date getDateFormat(String date, DateFormatType dateFormatType) {
+		DateFormat dateFormat = dateFormatMap.get().get(dateFormatType);
 		try {
 			return dateFormat.parse(date);
-		} catch (ParseException e) {
-			Throwables.propagate(e);
-		}
-		return null;
-	}
-
-	public static Date getDateTimeFormat(String dateTime) {
-		DateFormat dateTimeFormat = dateFormatMap.get().get(DateFormatType.YYYY_MM_DD_HH_MM_SS);
-		try {
-			return dateTimeFormat.parse(dateTime);
 		} catch (ParseException e) {
 			Throwables.propagate(e);
 		}

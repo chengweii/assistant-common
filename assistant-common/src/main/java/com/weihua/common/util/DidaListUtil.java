@@ -18,11 +18,12 @@ public class DidaListUtil {
 	private static String username;
 	private static String password;
 
-	private static void initUtilConfig() {
+	public static void init(String username, String password) {
+		DidaListUtil.username = username;
+		DidaListUtil.password = password;
 	}
 
 	public static void main(String[] args) throws Exception {
-		initUtilConfig();
 		List<Task> taskList = DidaListUtil.getTaskListFromDida365(TaskType.CURRENT_SCHEDULE, TaskStatus.UNFINISH);
 		LOGGER.info(taskList);
 	}
@@ -36,8 +37,8 @@ public class DidaListUtil {
 		try {
 			if (tokenHolder == null || DateUtil.getDateDiff(currentDate, tokenHoldTime) > 600) {
 				LoginInfo loginInfo = new LoginInfo();
-				loginInfo.username = "295999757@qq.com";
-				loginInfo.password = "15830243058";
+				loginInfo.username = decode(username, decodeKey);
+				loginInfo.password = decode(password, decodeKey);
 
 				Map<String, String> headers = new HashMap<String, String>();
 				headers.put("content-type", "application/json");
