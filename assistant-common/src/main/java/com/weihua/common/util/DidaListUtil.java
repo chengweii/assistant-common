@@ -230,6 +230,20 @@ public class DidaListUtil {
 			public String id;
 			public String title;
 			public String status;
+
+			@Override
+			public String toString() {
+				return "Item [id=" + id + ", title=" + title + ", status=" + status + "]";
+			}
+
 		}
+
+		@Override
+		public String toString() {
+			return "Task [id=" + id + ", deleted=" + deleted + ", createdTime=" + createdTime + ", completedTime="
+					+ completedTime + ", startDate=" + startDate + ", priority=" + priority + ", title=" + title
+					+ ", content=" + content + ", status=" + status + ", items=" + items + "]";
+		}
+
 	}
 }
