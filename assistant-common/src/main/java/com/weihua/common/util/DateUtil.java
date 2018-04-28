@@ -1,13 +1,13 @@
 package com.weihua.common.util;
 
+import com.google.common.base.Throwables;
+
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
-
-import com.google.common.base.Throwables;
 
 public class DateUtil {
 
@@ -23,7 +23,7 @@ public class DateUtil {
 	};
 
 	public static void main(String[] args) throws Exception {
-		System.out.println(getDateFormat("12:11", DateFormatType.HH_MM));
+		System.out.println(getDateFormat("2018-05-03T16:00:00.000+0000", DateFormatType.YYYY_MM_DD_T_HH_MM_SS_SSSZ));
 	}
 
 	public static String getDateFormat(Date date, DateFormatType dateFormatType) {
@@ -67,7 +67,7 @@ public class DateUtil {
 	}
 
 	public static enum DateFormatType {
-		YYYY_MM_DD("yyyy-MM-dd"), YYYY_MM_DD_HH_MM_SS("yyyy-MM-dd HH:mm:ss"), HH_MM_SS("HH:mm:ss"), HH_MM("HH:mm");
+		YYYY_MM_DD("yyyy-MM-dd"), YYYY_MM_DD_HH_MM_SS("yyyy-MM-dd HH:mm:ss"), YYYY_MM_DD_T_HH_MM_SS_SSSZ("yyyy-MM-dd'T'HH:mm:ss.SSSZ"), HH_MM_SS("HH:mm:ss"), HH_MM("HH:mm");
 		private DateFormatType(String value) {
 			this.value = value;
 		}
